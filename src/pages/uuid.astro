@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Frame from '../layouts/Frame.astro';
+
+import {v4 as uuid} from 'uuid';
+
+---
+
+<Layout title="Tad's Tools">
+	<Frame>
+		<p id="uuid-text" class="text-md select-all">
+			{uuid()}
+		</p>
+		<button id="uuid-button" class="new bg-cyan-500 text-white px-2 py-1 rounded">New</button>
+	</Frame>
+</Layout>
+
+<script>
+	import {v4 as uuid} from 'uuid';
+	const uuidText = document.getElementById('uuid-text');
+	const uuidButton = document.getElementById('uuid-button');
+
+	uuidButton?.addEventListener('click', function onClick() {
+		if (!uuidText) return;
+		uuidText.innerHTML = uuid();
+	})
+</script>

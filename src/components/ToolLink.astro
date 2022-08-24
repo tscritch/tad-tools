@@ -1,0 +1,21 @@
+---
+export interface Props {
+	title: string;
+	href: string;
+	isExternal?: boolean;
+}
+
+const { href, title, isExternal } = Astro.props as Props;
+---
+
+<li class="link-card">
+	<a href={href}>
+		<h2>
+			{title}
+			{isExternal ? <span>↗</span> : null}
+		</h2>
+	</a>
+</li>
+<style>
+
+</style>

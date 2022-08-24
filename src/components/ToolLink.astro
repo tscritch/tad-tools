@@ -6,16 +6,21 @@ export interface Props {
 }
 
 const { href, title, isExternal } = Astro.props as Props;
+const { pathname } = Astro.url;
 ---
 
-<li class="link-card">
-	<a href={href}>
+<div
+	class={`link-card text-sm px-2 py-1 rounded ${
+		pathname === href ? "bg-cyan-600 text-white" : ""
+	}`}
+>
+	<a href={href} target={isExternal ? "_blank" : ""}>
 		<h2>
 			{title}
 			{isExternal ? <span>↗</span> : null}
 		</h2>
 	</a>
-</li>
+</div>
 <style>
 
 </style>

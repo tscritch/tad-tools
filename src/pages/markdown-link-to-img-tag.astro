@@ -1,0 +1,43 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Frame from "../layouts/Frame.astro";
+---
+
+<Layout title="Markdown Link to <img />">
+	<Frame>
+		<textarea
+			id="text"
+			rows="12"
+			cols="500"
+			class="w-full m-2 p-1 text-sm bg-slate-100 border border-slate-200"
+		></textarea>
+		<button
+			id="convert"
+			class="block bg-cyan-500 text-white px-4 py-2 m-2 rounded-lg"
+		>
+			Convert
+		</button>
+
+		<h3 class="text-sm font-bold my-2">Tags</h3>
+		<div id="output" class="text-sm bg-green-100 p-4"></div>
+	</Frame>
+</Layout>
+
+<script>
+	// @todo: change this to not need a convert button and just
+	const text = document.getElementById("text") as HTMLTextAreaElement | null;
+	const convert = document.getElementById("convert");
+	const output = document.getElementById("output");
+
+	convert?.addEventListener("click", () => {
+		if (!text || !output) return;
+		const tags = text.value.match(/\(.+\)/g)?.map((element) => {
+			const link = element.slice(1, -1);
+			return `<img src="${link}" />`;
+		});
+
+		if (!tags) return;
+
+		output.innerText = tags.join("\n");
+	});
+</script>

@@ -1,27 +1,151 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Frame from '../layouts/Frame.astro';
+import Layout from "../layouts/Layout.astro";
+import Frame from "../layouts/Frame.astro";
 
-import {v4 as uuid} from 'uuid';
-
+import { v4 as uuid } from "uuid";
 ---
 
 <Layout title="Generate UUID">
 	<Frame>
-		<p id="uuid-text" class="text-md select-all">
-			{uuid()}
-		</p>
-		<button id="uuid-button" class="new bg-cyan-500 text-white px-2 py-1 rounded">New</button>
+		<div class="flex flex-col">
+			<div class="flex space-x-4 p-4">
+				<p id="uuid-text" class="text-md select-all"></p>
+				<p id="copied" class="copied text-transparent flex">
+					<span class="icon">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="w-6 h-6"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M15.75 18.75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-4.776 8.45a12.008 12.008 0 00-3.114 4.85L7.5 15.376m3.85-11.54c-.065.21-.1.433-.1.664v0c0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75v0a2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"
+							></path>
+						</svg>
+					</span>
+					Copied to Clipboard
+				</p>
+			</div>
+			<button
+				id="uuid-button"
+				class="new bg-sky-500 text-white px-2 py-1 rounded">New</button
+			>
+			<div class="history py-8">
+				<div class="history flex justify-between">
+					<h4 class="text-sm font-bold text-slate-400">History</h4>
+					<button
+						id="history-clear"
+						class="new bg-slate-400 text-white px-2 py-1 rounded">Clear</button
+					>
+				</div>
+				<div id="history-list" class="history-list"></div>
+			</div>
+		</div>
 	</Frame>
 </Layout>
+<style>
+	.copy-flash-bg {
+		animation: 2s ease-out k-copy-flash-bg;
+	}
+	.copy-flash-text {
+		animation: 4s ease-out k-copy-flash-text;
+	}
+
+	@keyframes k-copy-flash-bg {
+		from {
+			background-color: rgb(14 165 233 / 1);
+		}
+		to {
+			background-color: rgb(14 165 233 / 0);
+		}
+	}
+	@keyframes k-copy-flash-text {
+		from {
+			color: rgb(0 0 0 / 1);
+		}
+		to {
+			color: rgb(255 255 255 / 1);
+		}
+	}
+</style>
 
 <script>
-	import {v4 as uuid} from 'uuid';
-	const uuidText = document.getElementById('uuid-text');
-	const uuidButton = document.getElementById('uuid-button');
+	import { v4 as uuid } from "uuid";
+	import { copyToClipboard, saveItemToList } from "../helpers";
 
-	uuidButton?.addEventListener('click', function onClick() {
+	const UUID_HISTORY = "UUID_HISTORY";
+
+	const uuidText = document.getElementById("uuid-text");
+	const copied = document.getElementById("copied");
+	const uuidButton = document.getElementById("uuid-button");
+
+	const historyClearButton = document.getElementById("history-clear");
+	const historyList = document.getElementById("history-list");
+
+	// INIT
+	const initHistory = localStorage.getItem(UUID_HISTORY)?.split(",") || [];
+	showHistory(initHistory.reverse());
+
+	if (uuidText) {
+		const newUuid = uuid();
+		uuidText.innerHTML = newUuid;
+		addToHistory(newUuid);
+		copyToClipboard(newUuid).then(() => {
+			uuidText?.classList.add("copy-flash-bg");
+			copied?.classList.add("copy-flash-text");
+		});
+	}
+
+	// FUNCTIONS
+	function showHistory(list: string[]) {
+		if (!historyList) return;
+		const listItems = list.map((it) => {
+			return `
+				<div class="history-list-item">
+					<p>${it}</p>
+				</div>
+			`;
+		});
+		historyList.innerHTML = listItems.join("");
+	}
+
+	function clearHistory() {
+		localStorage.removeItem(UUID_HISTORY);
+	}
+
+	function addToHistory(item: string) {
+		if (!historyClearButton || !historyList) return;
+		const newList = saveItemToList(UUID_HISTORY, item).reverse();
+		console.log(newList);
+		const listItems = newList.map((it) => {
+			return `
+				<div class="history-list-item">
+					<p>${it}</p>
+				</div>
+			`;
+		});
+		historyList.innerHTML = listItems.join("");
+	}
+
+	uuidButton?.addEventListener("click", function onClick() {
 		if (!uuidText) return;
-		uuidText.innerHTML = uuid();
-	})
+		uuidText.classList.remove("copy-flash-bg");
+		copied?.classList.remove("copy-flash-text");
+		const newUuid = uuid();
+		uuidText.innerHTML = newUuid;
+		addToHistory(newUuid);
+		copyToClipboard(newUuid).then(() => {
+			uuidText.classList.add("copy-flash-bg");
+			copied?.classList.add("copy-flash-text");
+		});
+	});
+
+	historyClearButton?.addEventListener("click", function onClick() {
+		clearHistory();
+		showHistory([]);
+	});
 </script>

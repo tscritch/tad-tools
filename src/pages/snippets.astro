@@ -1,0 +1,21 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Frame from "../layouts/Frame.astro";
+---
+
+<Layout title="Snippets">
+  <Frame>
+    <div>
+      <code
+        >{
+          `
+				function delay(time) {
+					return new Promise(resolve => setTimeout(resolve, time));
+				}`
+        }
+      </code>
+    </div>
+  </Frame>
+</Layout>
+
+<script></script>
